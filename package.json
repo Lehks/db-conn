@@ -1,19 +1,31 @@
 {
-  "name": "db-conn",
-  "version": "0.0.1",
-  "description": "A library that generates both SQL to create a database and a JS client for the database.",
-  "main": "index.js",
-  "scripts": {
+    "name": "db-conn",
+    "version": "0.0.1",
+    "description": "A library that generates both SQL to create a database and a JS client for the database.",
+    "main": "index.js",
+    "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+ssh://git@github.com/Lehks/db-conn.git"
-  },
-  "author": "Lukas Reichmann",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Lehks/db-conn/issues"
-  },
-  "homepage": "https://github.com/Lehks/db-conn#readme"
+        "generateJSONTypings": "npx json2ts -i database-definition.schema.json -o lib/typings/database-definition.d.ts"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+ssh://git@github.com/Lehks/db-conn.git"
+    },
+    "author": "Lukas Reichmann",
+    "license": "MIT",
+    "bugs": {
+        "url": "https://github.com/Lehks/db-conn/issues"
+    },
+    "homepage": "https://github.com/Lehks/db-conn#readme",
+    "dependencies": {
+        "ajv": "^6.10.2",
+        "app-root-dir": "^1.0.2",
+        "commander": "^4.0.1",
+        "json-schema-to-typescript": "^7.1.0"
+    },
+    "devDependencies": {
+        "@types/app-root-dir": "^0.1.0",
+        "tslint": "^5.20.1",
+        "typescript": "^3.7.2"
+    }
 }
