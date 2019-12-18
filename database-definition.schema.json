@@ -1,0 +1,511 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema",
+    "type": "object",
+    "additionalProperties": false,
+    "required": [
+        "database"
+    ],
+    "properties": {
+        "$schema": {
+            "type": "string"
+        },
+        "database": {
+            "$ref": "#/definitions/database"
+        },
+        "meta": {
+            "$ref": "#/definitions/meta"
+        },
+        "columnDefs": {
+            "$ref": "#/definitions/columnDefs"
+        }
+    },
+    "definitions": {
+        "meta": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "jsOutputDir": {
+                    "type": "string",
+                    "default": "./"
+                },
+                "sqlOutput": {
+                    "type": "string",
+                    "default": "./"
+                }
+            }
+        },
+        "database": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "name"
+            ],
+            "properties": {
+                "name": {
+                    "$ref": "#/definitions/symbolName"
+                },
+                "meta": {
+                    "$ref": "#/definitions/databaseMeta"
+                },
+                "tables": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "patternProperties": {
+                        "[a-zA-Z_][a-zA-Z0-9_]*": {
+                            "$ref": "#/definitions/table"
+                        }
+                    }
+                }
+            }
+        },
+        "databaseMeta": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "singularClassNames": {
+                    "type": "boolean",
+                    "default": false
+                }
+            }
+        },
+        "table": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "columns",
+                "primaryKey"
+            ],
+            "properties": {
+                "meta": {
+                    "$ref": "#/definitions/tableMeta"
+                },
+                "columns": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "minProperties": 1,
+                    "patternProperties": {
+                        "[a-zA-Z_][a-zA-Z0-9_]*": {
+                            "oneOf": [
+                                {
+                                    "$ref": "#/definitions/column"
+                                },
+                                {
+                                    "type": "string",
+                                    "pattern": "#[a-zA-Z_][a-zA-Z0-9_]*"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "primaryKey": {
+                    "$ref": "#/definitions/primaryKey"
+                },
+                "foreignKeys": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "patternProperties": {
+                        "[a-zA-Z_][a-zA-Z0-9_]*": {
+                            "$ref": "#/definitions/foreignKey"
+                        }
+                    }
+                }
+            }
+        },
+        "tableMeta": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "className": {
+                    "oneOf": [
+                        {
+                            "$ref": "#/definitions/symbolName"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                }
+            }
+        },
+        "column": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "type"
+            ],
+            "properties": {
+                "unique": {
+                    "type": "boolean",
+                    "default": false
+                },
+                "nullable": {
+                    "type": "boolean",
+                    "default": true
+                },
+                "type": {
+                    "$ref": "#/definitions/type"
+                },
+                "meta": {
+                    "$ref": "#/definitions/columnMeta"
+                }
+            }
+        },
+        "type": {
+            "oneOf": [
+                {
+                    "$ref": "#/definitions/intType"
+                },
+                {
+                    "$ref": "#/definitions/floatType"
+                },
+                {
+                    "$ref": "#/definitions/stringTypeReqLength"
+                },
+                {
+                    "$ref": "#/definitions/stringType"
+                },
+                {
+                    "$ref": "#/definitions/enumType"
+                }
+            ]
+        },
+        "intType": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "base"
+            ],
+            "properties": {
+                "base": {
+                    "type": "string",
+                    "enum": [
+                        "tinyint",
+                        "smallint",
+                        "mediumint",
+                        "int",
+                        "bigint"
+                    ]
+                },
+                "width": {
+                    "oneOf": [
+                        {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "sign": {
+                    "type": "string",
+                    "enum": [
+                        "SIGNED",
+                        "UNSIGNED",
+                        "ZEROFILL"
+                    ],
+                    "default": "SIGNED"
+                },
+                "default": {
+                    "oneOf": [
+                        {
+                            "type": "integer"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            }
+        },
+        "floatType": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "base"
+            ],
+            "properties": {
+                "base": {
+                    "type": "string",
+                    "enum": [
+                        "float",
+                        "double",
+                        "decimal"
+                    ]
+                },
+                "width": {
+                    "oneOf": [
+                        {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "sign": {
+                    "type": "string",
+                    "enum": [
+                        "SIGNED",
+                        "UNSIGNED",
+                        "ZEROFILL"
+                    ],
+                    "default": "SIGNED"
+                },
+                "decimalPlaces": {
+                    "oneOf": [
+                        {
+                            "type": "integer",
+                            "minimum": 0
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ]
+                },
+                "default": {
+                    "oneOf": [
+                        {
+                            "type": "number"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            }
+        },
+        "stringType": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "base"
+            ],
+            "properties": {
+                "base": {
+                    "type": "string",
+                    "enum": [
+                        "char",
+                        "text"
+                    ]
+                },
+                "length": {
+                    "oneOf": [
+                        {
+                            "type": "integer",
+                            "minimum": 1
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                },
+                "default": {
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            }
+        },
+        "stringTypeReqLength": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "base",
+                "length"
+            ],
+            "properties": {
+                "base": {
+                    "type": "string",
+                    "enum": [
+                        "varchar"
+                    ]
+                },
+                "length": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "default": null
+                },
+                "default": {
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            }
+        },
+        "enumType": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+                "base",
+                "literals"
+            ],
+            "properties": {
+                "base": {
+                    "type": "string",
+                    "enum": [
+                        "enum"
+                    ]
+                },
+                "literals": {
+                    "type": "array",
+                    "additionalItems": false,
+                    "items": {
+                        "type": "string",
+                        "minLength": 1
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
+                },
+                "default": {
+                    "oneOf": [
+                        {
+                            "type": "string"
+                        },
+                        {
+                            "type": "null"
+                        }
+                    ],
+                    "default": null
+                }
+            }
+        },
+        "columnMeta": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "getter": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "name": {
+                            "oneOf": [
+                                {
+                                    "$ref": "#/definitions/symbolName"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    }
+                },
+                "setter": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "properties": {
+                        "name": {
+                            "oneOf": [
+                                {
+                                    "$ref": "#/definitions/symbolName"
+                                },
+                                {
+                                    "type": "null"
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        },
+        "primaryKey": {
+            "type": "object",
+            "required": [
+                "keys"
+            ],
+            "additionalProperties": false,
+            "properties": {
+                "keys": {
+                    "oneOf": [
+                        {
+                            "type": "array",
+                            "additionalItems": false,
+                            "minItems": 1,
+                            "items": {
+                                "$ref": "#/definitions/symbolName"
+                            }
+                        },
+                        {
+                            "$ref": "#/definitions/symbolName"
+                        }
+                    ]
+                }
+            }
+        },
+        "foreignKey": {
+            "required": [
+                "on",
+                "references"
+            ],
+            "properties": {
+                "on": {
+                    "$ref": "#/definitions/symbolName"
+                },
+                "references": {
+                    "type": "object",
+                    "additionalProperties": false,
+                    "required": [
+                        "table",
+                        "column"
+                    ],
+                    "properties": {
+                        "table": {
+                            "$ref": "#/definitions/symbolName"
+                        },
+                        "column": {
+                            "$ref": "#/definitions/symbolName"
+                        }
+                    }
+                },
+                "onUpdate": {
+                    "$ref": "#/definitions/foreignKeyTrigger"
+                },
+                "onDelete": {
+                    "$ref": "#/definitions/foreignKeyTrigger"
+                }
+            }
+        },
+        "columnDefs": {
+            "type": "object",
+            "additionalProperties": false,
+            "patternProperties": {
+                "#[a-zA-Z_][a-zA-Z0-9_]*": {
+                    "$ref": "#/definitions/column"
+                }
+            }
+        },
+        "symbolName": {
+            "type": "string",
+            "pattern": "[a-zA-Z_][a-zA-Z0-9_]*"
+        },
+        "foreignKeyTrigger": {
+            "type": "string",
+            "enum": [
+                "RESTRICT",
+                "CASCADE",
+                "SET_NULL",
+                "NO_ACTION",
+                "SET_DEFAULT"
+            ],
+            "default": "RESTRICT"
+        }
+    }
+}
