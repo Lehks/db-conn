@@ -22,10 +22,13 @@
         "ajv": "^6.10.2",
         "app-root-dir": "^1.0.2",
         "commander": "^4.0.1",
-        "json-schema-to-typescript": "^7.1.0"
+        "json-schema-to-typescript": "^7.1.0",
+        "lodash": "^4.17.15",
+        "winston": "^3.2.1"
     },
     "devDependencies": {
         "@types/app-root-dir": "^0.1.0",
+        "@types/lodash": "^4.14.149",
         "tslint": "^5.20.1",
         "typescript": "^3.7.2"
     }

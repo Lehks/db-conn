@@ -107,11 +107,10 @@ export interface ForeignKey {
   };
   onUpdate?: ForeignKeyTrigger;
   onDelete?: ForeignKeyTrigger;
-  [k: string]: any;
 }
 export interface Meta {
   jsOutputDir?: string;
-  sqlOutput?: string;
+  sqlOutputDir?: string;
 }
 export interface ColumnDefs {
   [k: string]: Column;

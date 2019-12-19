@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import DBSchema from '../typings/database-definition';
 import DBSchemaExtended from '../typings/database-definition-extension';
 import DefinitionListener from './definition-listener';
@@ -19,8 +20,8 @@ class DefinitionInflater implements DefinitionListener.IListener {
             meta.jsOutputDir = DefinitionInflater.Defaults.META_JS_OUTPUT_DIR;
         }
 
-        if (meta.sqlOutput === undefined) {
-            meta.sqlOutput = DefinitionInflater.Defaults.META_SQL_OUTPUT_DIR;
+        if (meta.sqlOutputDir === undefined) {
+            meta.sqlOutputDir = DefinitionInflater.Defaults.META_SQL_OUTPUT_DIR;
         }
     }
 
@@ -67,7 +68,7 @@ class DefinitionInflater implements DefinitionListener.IListener {
                     }
 
                     // can't use 'column' here
-                    table.columns[columnName] = data.definition.columnDefs[column];
+                    table.columns[columnName] = _.cloneDeep(data.definition.columnDefs[column]);
                 }
             }
         }

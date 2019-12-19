@@ -28,7 +28,7 @@
                     "type": "string",
                     "default": "./"
                 },
-                "sqlOutput": {
+                "sqlOutputDir": {
                     "type": "string",
                     "default": "./"
                 }
@@ -451,6 +451,7 @@
             }
         },
         "foreignKey": {
+            "additionalProperties": false,
             "required": [
                 "on",
                 "references"
