@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+import logger from '../cli/logger';
 import SQLGenerator from './sql-generator';
 
 namespace sqlWriter {
@@ -40,6 +41,21 @@ namespace sqlWriter {
         ret += sql.drop.tables.join('\n');
 
         return ret;
+    }
+
+    export function log(sql: SQLGenerator.IGeneratedSQL) {
+        logger.debug('Create Database: ');
+        logMultiline(sql.create.database);
+        logger.debug('Create Tables: ');
+        logMultiline(accumulateCreateTable(sql));
+        logger.debug('Drop Database: ');
+        logMultiline(sql.drop.database);
+        logger.debug('Drop Tables: ');
+        logMultiline(accumulateDropTable(sql));
+    }
+
+    function logMultiline(str: string) {
+        str.split('\n').forEach(l => logger.debug(l));
     }
 }
 

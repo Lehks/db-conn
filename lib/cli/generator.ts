@@ -14,7 +14,8 @@ namespace generator {
         logger.info(`Generating database SQL and JS client for definition file '${databaseDefinition}'.`);
 
         if (dryRun) {
-            logger.info('Doing dry run.');
+            logger.level = 'debug';
+            logger.debug('Doing dry run.');
         }
 
         try {
@@ -35,19 +36,22 @@ namespace generator {
 
             const inflatedDefinition = definition as DBSchema.DatabaseDefinitionSchema;
 
-            if (!dryRun) {
-                logger.info(`Generating SQL...`);
-                const sql = SQLGenerator.generate(MariaDBGenerator, inflatedDefinition);
-                logger.info(`Done generating SQL.`);
+            logger.info(`Generating SQL...`);
+            const sql = SQLGenerator.generate(MariaDBGenerator, inflatedDefinition);
+            logger.info(`Done generating SQL.`);
 
+            if (!dryRun) {
                 const outDir = path.resolve(definition.meta!.sqlOutputDir!, path.dirname(databaseDefinition));
 
                 logger.info(`Writing SQL...`);
                 await SQLWriter.write(outDir, sql);
                 logger.info(`Done writing SQL.`);
             } else {
-                logger.info('Final, inflated database definition is:');
-                logger.info(JSON.stringify(definition, null, 4));
+                logger.debug('Final, inflated database definition is:');
+                JSON.stringify(definition, null, 4).split('\n').forEach(l => logger.debug(l));
+
+                logger.debug('Generated SQL is:');
+                SQLWriter.log(sql);
             }
         } catch (error) {
             logger.error(`An error occurred.`, error);
