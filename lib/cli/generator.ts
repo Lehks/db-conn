@@ -3,7 +3,7 @@ import DefinitionInflater from '../core/definition-inflater';
 import DefinitionListener from '../core/definition-listener';
 import DefinitionLoader from '../core/definition-loader';
 import DefinitionValidator from '../core/definition-validator';
-import MariaDBGenerator from '../core/maraidb-generator/mariadb-sql-generator';
+import MariaDBGenerator from '../core/mariadb-generator/mariadb-sql-generator';
 import SQLGenerator from '../core/sql-generator';
 import SQLWriter from '../core/sql-writer';
 import DBSchema from '../typings/database-definition-processed';
