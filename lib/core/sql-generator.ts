@@ -3,41 +3,42 @@ import GeneratorSchema from '../typings/database-definition-sql-generator';
 
 namespace sqlGenerator {
     export interface ISQLGenerator {
-        createDatabase: (name: string) => string;
         createTable: (data: GeneratorSchema.Table) => string;
         createForeignKey: (foreignKey: GeneratorSchema.ForeignKey) => string;
 
-        dropDatabase: (name: string) => string;
         dropTable: (data: GeneratorSchema.Table) => string;
+        dropForeignKey: (data: GeneratorSchema.ForeignKey) => string;
     }
 
     export interface IGeneratedSQL {
         create: {
-            database: string;
-            tables: string[];
+            tables: {[key: string]: string};
             constraints: {
-                foreignKeys: string[]
+                foreignKeys: {[key: string]: string}
             }
         };
 
         drop: {
-            database: string;
-            tables: string[];
+            tables: {[key: string]: string};
+            constraints: {
+                foreignKeys: {[key: string]: string}
+            }
         };
     }
 
     export function generate(generator: ISQLGenerator, definition: DBSchema.DatabaseDefinitionSchema): IGeneratedSQL {
         const ret: IGeneratedSQL = {
             create: {
-                database: generator.createDatabase(definition.database.name),
-                tables: [],
+                tables: {},
                 constraints: {
-                    foreignKeys: []
+                    foreignKeys: {}
                 }
             },
             drop: {
-                database: generator.dropDatabase(definition.database.name),
-                tables: []
+                tables: {},
+                constraints: {
+                    foreignKeys: {}
+                }
             }
         };
 
@@ -45,6 +46,7 @@ namespace sqlGenerator {
         generateCreateForeignKeys(definition.database, generator, ret);
 
         generateDropTables(definition.database, generator, ret);
+        generateDropForeignKeys(definition.database, generator, ret);
 
         return ret;
     }
@@ -55,13 +57,13 @@ namespace sqlGenerator {
                 const table = database.tables[tableName];
                 const pk = table.primaryKey;
 
-                sql.create.tables.push(generator.createTable({
+                sql.create.tables[tableName] = generator.createTable({
                     name: tableName,
                     columns: transformColumns(table.columns as {[key: string]: DBSchema.Column}),
                     primaryKey: {
                         keys: typeof pk.keys === 'string' ? [pk.keys] : pk.keys
                     }
-                }));
+                });
             }
         }
     }
@@ -74,14 +76,14 @@ namespace sqlGenerator {
                     if (foreignKeyName) {
                         const foreignKey = table.foreignKeys[foreignKeyName];
 
-                        sql.create.constraints.foreignKeys.push(generator.createForeignKey({
+                        sql.create.constraints.foreignKeys[foreignKeyName] = generator.createForeignKey({
                             tableName,
                             name: foreignKeyName,
                             on: foreignKey.on,
                             references: foreignKey.references,
                             onUpdate: foreignKey.onUpdate,
                             onDelete: foreignKey.onDelete
-                        }));
+                        });
                     }
                 }
             }
@@ -94,13 +96,35 @@ namespace sqlGenerator {
                 const table = database.tables[tableName];
                 const pk = table.primaryKey;
 
-                sql.drop.tables.push(generator.dropTable({
+                sql.drop.tables[tableName] = generator.dropTable({
                     name: tableName,
                     columns: transformColumns(table.columns as {[key: string]: DBSchema.Column}),
                     primaryKey: {
                         keys: typeof pk.keys === 'string' ? [pk.keys] : pk.keys
                     }
-                }));
+                });
+            }
+        }
+    }
+
+    function generateDropForeignKeys(database: DBSchema.Database, generator: ISQLGenerator, sql: IGeneratedSQL) {
+        for (const tableName in database.tables) {
+            if (tableName) {
+                const table = database.tables[tableName];
+                for (const foreignKeyName in table.foreignKeys) {
+                    if (foreignKeyName) {
+                        const foreignKey = table.foreignKeys[foreignKeyName];
+
+                        sql.drop.constraints.foreignKeys[foreignKeyName] = generator.dropForeignKey({
+                            tableName,
+                            name: foreignKeyName,
+                            on: foreignKey.on,
+                            references: foreignKey.references,
+                            onUpdate: foreignKey.onUpdate,
+                            onDelete: foreignKey.onDelete
+                        });
+                    }
+                }
             }
         }
     }

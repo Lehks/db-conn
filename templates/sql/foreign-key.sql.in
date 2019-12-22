@@ -2,4 +2,4 @@ ALTER TABLE `@tableName@`
     ADD CONSTRAINT `@keyName@` 
         FOREIGN KEY (`@localColumn@`) 
         REFERENCES `@foreignTable@` (`@foreignColumn@`) 
-        ON UPDATE `@onUpdate@` ON DELETE `@onDelete@`;
+        ON UPDATE @onUpdate@ ON DELETE @onDelete@;
