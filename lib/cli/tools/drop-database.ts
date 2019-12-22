@@ -35,6 +35,7 @@ namespace executor {
     export async function execute(databaseDefinition: string) {
         logger.info(`Dropping database from SQL generated from definition file '${databaseDefinition}'.`);
         let db: DBAccess.DatabaseConnection | undefined;
+        let inTransaction = false;
 
         try {
             const inflatedDefinition = await DefinitionLoader.load(databaseDefinition);
@@ -54,6 +55,7 @@ namespace executor {
             dbConnLogger.log(db, logger.info);
 
             await db.transaction(async conn => {
+                inTransaction = true;
                 const files = await getDropTableFiles(sqlPath);
 
                 for (const fileName of files.constraints) {
@@ -68,13 +70,17 @@ namespace executor {
                     logger.info(`Table has been dropped.`);
                 }
             });
+            inTransaction = false;
         } catch (error) {
             logger.error(`An error occurred. `, error);
-            logger.info('The transaction that was responsible for the table creation has been rolled back.');
-            logger.warn('Some RDBMS do not support rollback of DDL statements (e.g. MySQL), therefore, some tables' +
-                ' may not have been dropped.');
+
+            if (inTransaction) {
+                logger.info('The transaction that was responsible for the table creation has been rolled back.');
+                logger.warn('Some RDBMS do not support rollback of DDL statements (e.g. MySQL), therefore, some '
+                    + 'tables may not have been dropped.');
+            }
         } finally {
-            if (db) {
+            if (db && db.isInitialized) {
                 await db.terminate();
             }
         }
